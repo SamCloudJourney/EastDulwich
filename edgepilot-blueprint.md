@@ -1,150 +1,123 @@
-# EdgePilot — The Complete Project Blueprint
+# EdgePilot — Project Blueprint (Agreed v2)
 
-> An AI-native betting-edge copilot for the UK. Finds +EV bets, arbs and matched-betting
-> offers across every book — and is the **first tool you can actually talk to about them.**
-> "Sell the shovels, not the picks." Legal, tax-free (UK exchanges), uncapped by bankroll.
-
----
-
-## 💡 THE INSANE INSIGHT (why this wins)
-
-The research found a clean, unfilled gap right down the middle of the market:
-
-- **General AI (ChatGPT/Claude)** can *talk* about bets but has **no real-time odds** — useless for actual edges.
-- **Specialist tools (OddsJam, RebelBetting, BetBurger)** have real-time odds but **can't hold a conversation** — you literally can't ask OddsJam *"why is this +EV?"* or *"is this arb safe?"*
-
-**Nobody has combined real-time odds data + conversational AI.** That's the whole opportunity. EdgePilot is the first **AI-native edge copilot**: it surfaces the opportunities like a scanner, *and* you can ask it "why is this a value bet?", "what's the risk here?", "build me a £500 bankroll strategy." Decision-support, not autopilot — which is exactly what bettors say they want.
-
-This is *uniquely* buildable by a frontier-AI builder. A non-coder can't make it; legacy incumbents would have to rebuild from scratch.
+> A design-led, mobile-first **PWA** that detects betting-market mispricing (value bets, arbs,
+> matched-betting offers) across UK books + exchanges and pushes them to the user in real time.
+> We sell the *detection tool*, never picks. Legal, tax-free for users on exchanges, uncapped by bankroll.
+> No conversational AI. Native iOS/Android apps are Phase 2 (billed via web to avoid Apple's cut).
 
 ---
 
-## 📊 MARKET & TAM
+## 1. THESIS (why this makes money)
 
-- UK online sports betting: **£16.8bn annual GGY**, ~**17.4M active bettors**, growing to **15.3M+ online users by 2029** (11–13% CAGR).
-- The *tools* sub-market is already proven: **OddsMonkey alone has 450k+ members**, RebelBetting 325k+. Hundreds of thousands of UK users already *pay* for betting tools.
-- Capturing even **0.1% of that paying base at £20/mo ≈ £100k+/yr**; 1% is a £1m+ business.
+Betting markets are *mostly* efficient but not perfectly so. Sharp books (Pinnacle) price events near
+true probability; soft books and exchanges lag. The gap between "true price" and "offered price" is a
+**measurable, exploitable edge**. Detecting that gap at scale is a data/engineering problem — which is
+exactly the kind of problem a frontier-AI builder can solve cheaply and a non-coder cannot.
 
----
-
-## 🏟️ COMPETITOR MATRIX (with real pricing)
-
-| Competitor | What | Price/mo | Weakness we exploit |
-|---|---|---|---|
-| **OddsMonkey** | Matched betting leader (450k+) | £39.99 / £49.99 / **£149 (EV)** | Buggy, bad mobile, "stripped" rewrite, expensive, same owner as Outplayed |
-| **Outplayed** | Matched betting (ex-PA) | £39.99 / £49.99 | Same owner as OddsMonkey → complacent |
-| **RebelBetting** | Value + arb (325k+) | **£62 / £118** | Hard to navigate, English-only, "guarantee trap" |
-| **OddsJam** | US value/arb | **$199–$999** | 2.9★, terrible support, billing tricks, US-focused |
-| **Bet Hero** | Value + arb (modern) | €29.99 / €59.99 / €89.99 | Strongest tech rival — watch closely |
-| **BetBurger** | Arb-first | £29.99 / £79.99 / £279.99 | Arb-only, dated UX |
-
-**Take:** ~5 real rivals. None are AI-conversational, none are UK-first + all-in-one + honest-billing, most are pricey and clunky.
+**Key strategic move:** we don't bet (bankroll-/liquidity-capped, variance-heavy). We **sell the
+detection** as software — recurring revenue, no variance, scales with subscribers. And we sell *tools*
+not *picks*, because concentrated picks decay as followers pile in, whereas a scanner surfacing thousands
+of diffuse opportunities does not.
 
 ---
 
-## 🎯 THE GAPS → OUR WEDGES
+## 2. THE EDGE, FORMALLY
 
-From real user complaints (Reddit/Trustpilot):
-1. **No conversational AI** — can't ask *why*. ← our flagship feature, nobody has it.
-2. **Bad mobile / clunky UX** — universal complaint. ← mobile-first, clean.
-3. **Billing distrust** — hidden fees, charged-after-cancel (#1 complaint everywhere). ← radical transparency, cancel anytime.
-4. **Overpriced** — £60–£800/mo. ← undercut hard.
-5. **Fragmented** — separate tools for value / arb / matched betting. ← all-in-one.
-6. **Weak automation & alerts** — manual, slow. ← real-time push alerts, smart filters.
-7. **Shallow analytics** — ← proper profit + CLV (closing-line value) dashboard = trust as a feature.
+**Value (+EV):** strip the margin ("vig") from the sharp book to get fair probability `p`. If a soft
+book/exchange offers decimal odds `o` with `o > 1/p`, the bet has positive expected value:
+`EV = p·(o−1) − (1−p)`. We surface every selection where `EV` exceeds a threshold (≈2%+ to absorb model error).
 
----
+**Arbitrage:** for a two-way market, if `1/o_A + 1/o_B < 1` across two venues, backing both sides locks a
+guaranteed profit regardless of outcome. Mechanical, near-zero risk.
 
-## 🛠️ THE PRODUCT
+**Matched betting:** extract bookmaker sign-up/reload offers by backing at the bookie and laying on an
+exchange — near risk-free, the beginner on-ramp.
 
-**Core engine:** ingest live odds across UK bookmakers + exchanges (Smarkets/Betfair) + a **sharp reference (Pinnacle)**; detect **value bets** (price beats sharp fair value), **arbs** (locked profit), and **matched-betting offers**.
-
-**The AI layer (the moat):**
-- "**Explain this bet**" — ask why any signal is +EV, in plain English.
-- "**Is this safe?**" — risk check (liquidity, gubbing risk, resolution).
-- "**Build my strategy**" — bankroll-aware staking plan (¼-Kelly), tailored to the user.
-- "**Coach me**" — onboarding for beginners (huge: converts non-experts the incumbents ignore).
-
-**Trust features:** transparent £ pricing, cancel-anytime, public verified CLV track record.
-
-**Form factors (in build order):**
-1. **Discord bot** (launch) — pushes live edges into betting Discords; Whop handles payments/access. Cheapest, fastest, communities already exist.
-2. **Web app** — full dashboard + AI chat.
-3. **Mobile app** — the thing every incumbent fails at.
+**The truth metric — CLV:** Closing-Line Value measures whether a bet beat the sharp closing price. It's
+the only honest, variance-free proof the edge is real, and it becomes our public trust signal.
 
 ---
 
-## 💷 PRICING STRATEGY
+## 3. THE PRODUCT (design-led, mobile-first PWA)
 
-Undercut the incumbents, monetise the AI as the premium.
-
-| Tier | Price | What |
-|---|---|---|
-| **Free** | £0 | Delayed/limited signals + 5 AI questions/day. The hook + lead magnet. |
-| **Pro** | **£19/mo** | Real-time value + arb + matched betting, unlimited AI chat, tracker/CLV. Undercuts everyone. |
-| **Sharp** | **£39/mo** | Live in-play edges, advanced filters, API/Discord alerts, priority data. |
-
-Anchor: cheaper than RebelBetting's *starter* (£62) while doing *more*. Annual plans at ~30% off for cash-flow + retention.
-
----
-
-## 🔌 TECH & DATA (the critical dependency)
-
-The whole product rides on an **odds feed that includes a sharp book (Pinnacle)** — that's what makes +EV detection possible. Options researched:
-
-| Provider | Price | Sharps (Pinnacle)? | Verdict |
-|---|---|---|---|
-| **OddsPapi** | per-request, **free tier** | ✅ 350+ books incl. sharps | **Best for MVP** — dev-first, cheap, has Pinnacle |
-| **SportsGameOdds** | $99–499, free tier | ✅ 80+ incl. Pinnacle | Strong backup |
-| The Odds API | $30–249 | ❌ no sharps | Cheap but no Pinnacle = weak for +EV |
-| OpticOdds | ~$5,000/sport | ✅ enterprise | Too expensive |
-
-**Stack:** Python/Node backend, odds via OddsPapi, edge-detection engine, Claude API for the AI layer, web dashboard, Discord bot. Runs cheaply on a small VPS — total infra **<£100/mo** at MVP.
+- **Form:** installable PWA — home-screen icon, web push notifications, app-like feel — on **iOS and
+  Android** at once, full margins (~3% Stripe vs Apple's 15–30%), instant iteration, no gatekeeper.
+- **Hero feature:** **real-time push alerts** ("+EV bet found: 4.2% edge"). Edges are time-sensitive;
+  speed of delivery to the phone is the product.
+- **Core screens:** live edge feed (value/arb/matched in one place), filters (sport/book/edge size),
+  one-tap bet tracker, CLV/profit dashboard.
+- **Differentiator = craft:** every incumbent is dinged for clunky, buggy, ugly, bad-on-mobile UX.
+  We win on speed, clarity, and beauty. Design is the front door.
+- **Trust as a feature:** transparent £ pricing, cancel-anytime, public verified CLV record.
 
 ---
 
-## 🚀 GO-TO-MARKET
+## 4. SYSTEM ARCHITECTURE
 
-Researched channels, in priority order:
-1. **Discord-first launch** — betting Discords are huge; a bot that pushes live edges is "a service worth paying for." Whop handles payments. Fastest 0→first-revenue with near-zero CAC.
-2. **SEO + comparison content** — 78% of betting affiliates rely on SEO; review/comparison pages are the dominant organic channel. Build "best value betting tool UK" content, win the long tail. (6–12 month compounding play.)
-3. **Affiliate/referral** — bettors refer bettors; rev-share program.
-4. **YouTube/influencer** — sponsor matched-betting/value creators (Caan Berry-type audiences).
-5. **Poach the disgruntled** — target OddsMonkey/OddsJam refugees directly (Reddit, Trustpilot, comparison keywords).
-
----
-
-## 📈 FINANCIAL SHAPE (honest)
-
-- **Costs:** ~£100/mo infra + data at MVP. Solo-built (you + AI) → no salaries.
-- **Path:** Discord bot → first £1–3k MRR in months on near-zero CAC → web/mobile + SEO → **£5–30k MRR in 12–24 months** (in line with comparable solo betting-SaaS). Ceiling ~£100k MRR before saturation.
-- **Why it's a real business:** recurring, scales with subscribers (not bankroll/liquidity), legal, tax-clean for users on exchanges.
+1. **Ingestion:** poll/stream odds via **OddsPapi** (free tier, 350+ books incl. sharp Pinnacle) or
+   SportsGameOdds (backup). A sharp reference is non-negotiable — it's the source of "true price."
+2. **Normalisation / entity resolution (the hard part):** match the same event + selection across books
+   that name things differently. This matching layer is the real engineering moat.
+3. **Edge-detection engine:** compute no-vig fair prices, scan for +EV / arb / matched opportunities,
+   filter false positives (stale odds, palpable errors, dead liquidity).
+4. **Real-time push pipeline:** fan detected edges to subscribed users by their filters, in seconds.
+5. **Frontend:** mobile-first PWA (React/Next.js + service worker for push), Stripe billing.
+6. **Infra:** small VPS; total cost **<£100/mo** at MVP. Caching to control data spend.
 
 ---
 
-## 🗺️ ROADMAP
+## 5. UNIT ECONOMICS
 
-- **Week 1–2:** odds feed wired (OddsPapi) + value/arb detection engine + a working **Discord bot** pushing real signals. Validate edges are real.
-- **Week 3–4:** add the **AI "explain this bet" layer** (the differentiator) + CLV tracker.
-- **Month 2:** web dashboard + free/Pro tiers + Stripe. Soft-launch in 2–3 Discords.
-- **Month 3+:** matched-betting module, SEO content engine, mobile app, affiliate program.
-
----
-
-## ⚠️ HONEST RISKS
-
-- **Bet Hero** is a capable modern rival — we differentiate on AI-chat + UK-first + honesty, not just features.
-- **The edge must be real** — value detection lives or dies on the Pinnacle-anchored model; CLV tracking keeps us honest and is the trust proof.
-- **Data cost scales with usage** — manage via caching + tiered limits.
-- **Affiliate/review SEO is pay-to-play** — our honest, public track record is the counter-brand.
-- **Gambling-adjacent marketing rules** — stay tool/education-focused (we sell software, not bets), which also keeps us clear of operator licensing.
+- **Cost:** ~£100/mo infra+data at MVP; solo-built (you + AI), no salaries.
+- **Price:** Free (delayed/limited — the hook) → **Pro £19/mo** → **Sharp £39/mo** (live in-play, advanced filters, priority alerts).
+- **Margin:** ~97% on web billing. Data cost is the variable; managed via caching + tiered limits.
+- **Trajectory:** £1–3k MRR in months (Discord/PWA, near-zero CAC) → **£5–30k MRR in 12–24 months** →
+  ceiling ~£100k MRR. Recurring, scales with subscribers, not bankroll.
 
 ---
 
-## ✅ THE ONE-LINER
+## 6. COMPETITIVE POSITION
 
-> **EdgePilot — the first betting-edge tool you can talk to.** Finds value bets, arbs and matched-betting offers across every UK book, explains *why* each one's an edge, and builds you a plan — honest pricing, mobile-first, no tipster nonsense. The AI-native scanner the legacy tools can't rebuild fast enough.
+Real rivals (~5): OddsMonkey/Outplayed (£40–149, matched betting, buggy, same owner), RebelBetting
+(£62–118, hard UX), OddsJam ($199–999, 2.9★, US-focused), Bet Hero (€30–90, modern — the one to watch),
+BetBurger (£30–280, arb-only). **None are UK-first + all-in-one + design-led + honest-billing at £19.**
+Incumbents struggle to respond: legacy stacks, revenue dependent on the billing tricks we attack.
 
 ---
 
-*Sources: Statista/Grand View (market); OddsMonkey, Outplayed, RebelBetting, OddsJam, Bet Hero, BetBurger pricing pages & reviews; OddsPapi, SportsGameOdds, The Odds API (data); Trustpilot & Reddit (complaints/gaps); Parlay Savant, OddsJam (AI-gap analysis); Business of Apps, StatsDrone (acquisition channels). Figures are reported ranges. Informational use.*
+## 7. GO-TO-MARKET
+
+1. **Discord-first** — push edges into betting Discords (Whop handles payments). First revenue in weeks, ~£0 CAC.
+2. **SEO / comparison content** — 78% of betting affiliates rely on SEO; own "best value betting tool UK". 6–12mo compounding.
+3. **Affiliate/referral** — bettors refer bettors.
+4. **Poach the disgruntled** — OddsJam/OddsMonkey refugees via Reddit, Trustpilot, comparison keywords.
+
+---
+
+## 8. ROADMAP
+
+- **Wk 1–2:** odds feed + edge-detection engine + Discord bot pushing real signals (validate edges).
+- **Wk 3–4:** PWA shell, live edge feed, push notifications, CLV tracker.
+- **Mth 2:** filters, bet tracker, Free/Pro tiers + Stripe, soft-launch in 2–3 Discords.
+- **Mth 3+:** matched-betting module, SEO engine, referral program.
+- **Phase 2:** native iOS + Android apps (subscriptions billed on web to dodge Apple's cut).
+
+---
+
+## 9. RISKS
+
+- **Edge realness** — value detection rides on the sharp-anchored model; CLV keeps us honest.
+- **Bet Hero** — capable modern rival; differentiate on UK-first + design + honesty.
+- **Entity-resolution accuracy** — bad matches = false arbs = lost trust. Core engineering focus.
+- **Data cost at scale** — caching + tiering.
+- **Stay tool/education-focused** — we sell software, not bets → avoids operator licensing + ad rules.
+
+---
+
+## ONE-LINER
+> **EdgePilot — the beautifully designed betting-edge app that finds value bets, arbs and matched-betting
+> offers across every UK book and pushes them to your phone in seconds. Honest pricing, mobile-first, no
+> tipster nonsense.**
+
+*Sources: competitor pricing pages & Trustpilot; OddsPapi/SportsGameOdds (data); Statista/Grand View
+(market); Apple Guideline 5.3 + OddsJam/BettingPros iOS apps (App Store viability). Reported ranges, informational.*
