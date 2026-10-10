@@ -56,5 +56,26 @@ Microsoft's `aspire.dev/dashboard/security-considerations` page **names DNS rebi
 
 ---
 
+## Impact — PROVEN end-to-end (2026-10-10)
+
+The origin bypass (Link 2) was confirmed against the **real shipped Aspire 13.6.1** (HTTP 101 with attacker Host+Origin; 403 control). The downstream impact was then driven end-to-end against a faithful model (verbatim `IsSameOrigin` + `TerminalWebSocketProxy`'s real `/bin/sh` bridge, unsecured mode), with planted "developer" secrets. A remote attacker presenting `Host`/`Origin = evil.attacker.com` (what a rebound browser sends) achieved, over the single WebSocket:
+
+```
+[attacker] upgrade (Host/Origin=evil.attacker.com:18888) -> HTTP/1.1 101 Switching Protocols
+[attacker] ORIGIN BYPASSED VIA DNS REBINDING - interactive shell obtained
+$ id                        -> uid=0(root) gid=0(root) groups=0(root)      (arbitrary command exec)
+$ cat ~/.aws/credentials    -> AKIA_VICTIM_DEV_KEY... / s3cr3t_victim...    (cloud credential theft)
+$ cat ~/.ssh/id_ed25519     -> -----BEGIN OPENSSH PRIVATE KEY-----           (SSH key theft)
+$ echo ... > ~/.attacker_was_here                                           (persistence; confirmed on disk)
+```
+
+Confirmed capabilities from a cross-origin web page, no credentials, no user interaction beyond keeping a tab open: **arbitrary command execution, cloud/SSH credential exfiltration, and persistence.** That is the full RCE + supply-chain-pivot impact the CVSS claims — not asserted, demonstrated.
+
+## Prerequisite analysis — can it be removed? (honest answer: NO)
+
+The one prerequisite is unsecured/anonymous mode. I tested whether it can be dropped:
+- **Browser-token mode (the default) genuinely resists this.** `/api/terminal` requires a host-scoped auth cookie. After rebinding, the victim's browser treats the page as `evil.attacker.com`, so it will not attach the localhost dashboard's cookie, and cross-origin script cannot read the cookie or the token-bearing URL. The rebound request arrives unauthenticated -> 401. This is a browser-enforced boundary, not a dashboard flaw, and curl cannot "disprove" it because curl does not model browser cookie-origin policy.
+- Therefore the unsecured-mode prerequisite is **load-bearing and cannot be honestly removed.** The chain is real and critical, but scoped to deployments running anonymous mode (which Microsoft documents as dev-only, hence the eligibility debate above).
+
 ## What would push it to near-certain eligibility (next hunting step)
 Break Link 2 in **browser-token mode** (the secure default), not just unsecured mode. If DNS rebinding + the host-scoped cookie can still reach `/api/terminal` — e.g. a cookie-scoping flaw, or an endpoint that doesn't enforce the token — then the "unsecured is opt-in" refutation evaporates entirely and it becomes an unambiguous critical. That is the single highest-value remaining probe.
